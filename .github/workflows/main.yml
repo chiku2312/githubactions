@@ -1,0 +1,34 @@
+name: Java App Deployment to EB # Workflow ka naam
+
+on:
+  push:
+    branches:
+      - main # Jab bhi main branch par push hoga, yeh run hoga
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code # Code ko virtual machine par lein
+        uses: actions/checkout@v4
+
+      - name: Set up Java # Java environment setup karein
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17' # Aap apni Java version daal sakte hain
+          
+      - name: Build with Maven # Maven se project build karein
+        run: mvn clean package -DskipTests # JAR/WAR file ban jaayegi
+
+      - name: Deploy to Elastic Beanstalk # Deployment Action use karein
+        uses: einaregilsson/beanstalk-deploy@v22 # Yeh ek popular action hai
+        with:
+          aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }} # Secret key use kiya
+          aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }} # Secret key use kiya
+          application_name: Techsiddhu-env # Yahan change karein
+          environment_name: 'Aapka-Beanstalk-Environment-Name' # Yahan change karein
+          version_label: ${{ github.sha }} # Har deployment ka unique version
+          region: 'ap-south-1' # Apni AWS region daalein (Jaise: us-east-1, ap-south-1)
+          deployment_package: target/Aapki-JAR-Ya-WAR-File.jar # Yahan apni build file ka path daalein
