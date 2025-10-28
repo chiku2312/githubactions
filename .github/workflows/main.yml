@@ -21,10 +21,10 @@ jobs:
           
       - name: Build with Maven # ***CORRECTION 1: working-directory added***
         run: mvn clean install -DskipTests=true
-        working-directory: ./java-app # <--- Yahan apne Java folder ka naam daalein
+         # <--- Yahan apne Java folder ka naam daalein
         
       - name: list target folder # Path check karne ke liye
-        run: ls -la java-app/target/ # <--- Yahan bhi folder ka naam daalein
+        run: ls -la target/ # <--- Yahan bhi folder ka naam daalein
 
       - name: Deploy to Elastic Beanstalk 
         uses: einaregilsson/beanstalk-deploy@v21 
@@ -35,4 +35,4 @@ jobs:
           environment_name: ${{ secrets.EB_ENV_NAME }} 
           region: 'us-east-1' 
           version_label: ${{ github.sha }} 
-          deployment_package: java-app/target/application.jar # ***CORRECTION 2: Correct file path***
+          deployment_package: target/application.jar # ***CORRECTION 2: Correct file path***
