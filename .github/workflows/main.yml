@@ -27,8 +27,9 @@ jobs:
         with:
           aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }} # Secret key use kiya
           aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }} # Secret key use kiya
-          application_name: Techsiddhu-env # Yahan change karein
-          environment_name: 'Aapka-Beanstalk-Environment-Name' # Yahan change karein
+          application_name: techsiddhu # Yahan change karein
+          environment_name: Techsiddhu-env # Yahan change karein
           version_label: ${{ github.sha }} # Har deployment ka unique version
-          region: 'ap-south-1' # Apni AWS region daalein (Jaise: us-east-1, ap-south-1)
-          deployment_package: target/Aapki-JAR-Ya-WAR-File.jar # Yahan apni build file ka path daalein
+          region: 'us-east-1' # Apni AWS region daalein (Jaise: us-east-1, ap-south-1)
+          deployment_package: target/application.jar
++
