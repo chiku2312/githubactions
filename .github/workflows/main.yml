@@ -1,4 +1,4 @@
-name: Jaava CI/CD to Elastic Beanstalk # Workflow ka naam
+name: Java CI/CD to Elastic Beanstalk # Workflow ka naam
 
 on:
   push:
