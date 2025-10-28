@@ -1,42 +1,38 @@
-name: Java CI/CD to Elastic Beanstalk # Workflow ka naam
+name: Java CI/CD to Elastic Beanstalk 
 
 on:
   push:
     branches:
-      - main # Jab bhi 'main' branch par push hoga, yeh chlega
+      - master # Aapki repository 'master' branch use kar rahi hai
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     
     steps:
-      - name: Checkout Code # Code ko GitHub se runner (virtual machine) par laana
+      - name: Checkout Code 
         uses: actions/checkout@v4
 
-      - name: Set up Java 17 # Java environment set up karna
+      - name: Set up Java 17 
         uses: actions/setup-java@v4
         with:
           java-version: '17'
-          distribution: 'corretto' # Jaise aapne screenshot mein use kiya hai
+          distribution: 'corretto' 
           
-      - name: Build with Maven # Project ko build karna
-        run: mvn clean install -DskipTests=true # 'install' se target folder mein JAR/WAR banta hai
+      - name: Build with Maven # ***CORRECTION 1: working-directory added***
+        run: mvn clean install -DskipTests=true
+        working-directory: ./java-app # <--- Yahan apne Java folder ka naam daalein
         
-      - name: list target folder # (Optional) Sirf check karne ke liye ki JAR/WAR bana ya nahi
-        run: ls -la target/
+      - name: list target folder # Path check karne ke liye
+        run: ls -la java-app/target/ # <--- Yahan bhi folder ka naam daalein
 
-      - name: Deploy to Elastic Beanstalk # Deployment Action
-        uses: einaregilsson/beanstalk-deploy@v21 # Aapne v21 use kiya hai
+      - name: Deploy to Elastic Beanstalk 
+        uses: einaregilsson/beanstalk-deploy@v21 
         with:
-          # --- Secrets (Yeh values aapne GitHub Secrets mein daali hongi) ---
           aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }} 
           aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          
-          # --- Elastic Beanstalk Configuration (Yeh bhi secrets ya direct values honi chahiye) ---
-          application_name: Techsiddhu-env
-          environment_name: techsiddhu
-          
-          # --- Deployment Details ---
-          region: 'us-east-1' # Ya toh 'us-east-1' ya phir aapki region (jaise 'ap-south-1')
-          version_label: ${{ github.sha }} # Har commit ke liye unique version
-          deployment_package: target/application.jar # **Bahut Important:** Apni final JAR/WAR file ka naam yahan daalein!
+          application_name: ${{ secrets.EB_APP_NAME }} 
+          environment_name: ${{ secrets.EB_ENV_NAME }} 
+          region: 'us-east-1' 
+          version_label: ${{ github.sha }} 
+          deployment_package: java-app/target/application.jar # ***CORRECTION 2: Correct file path***
