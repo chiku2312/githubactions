@@ -1,35 +1,42 @@
-name: Java App Deployment to EB # Workflow ka naam
+name: Java CI/CD to Elastic Beanstalk # Workflow ka naam
 
 on:
   push:
     branches:
-      - main # Jab bhi main branch par push hoga, yeh run hoga
+      - main # Jab bhi 'main' branch par push hoga, yeh chlega
 
 jobs:
-  build_and_deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
     
     steps:
-      - name: Checkout code # Code ko virtual machine par lein
+      - name: Checkout Code # Code ko GitHub se runner (virtual machine) par laana
         uses: actions/checkout@v4
 
-      - name: Set up Java # Java environment setup karein
+      - name: Set up Java 17 # Java environment set up karna
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
-          java-version: '17' # Aap apni Java version daal sakte hain
+          java-version: '17'
+          distribution: 'corretto' # Jaise aapne screenshot mein use kiya hai
           
-      - name: Build with Maven # Maven se project build karein
-        run: mvn clean package -DskipTests # JAR/WAR file ban jaayegi
+      - name: Build with Maven # Project ko build karna
+        run: mvn clean install -DskipTests=true # 'install' se target folder mein JAR/WAR banta hai
+        
+      - name: list target folder # (Optional) Sirf check karne ke liye ki JAR/WAR bana ya nahi
+        run: ls -la target/
 
-      - name: Deploy to Elastic Beanstalk # Deployment Action use karein
-        uses: einaregilsson/beanstalk-deploy@v22 # Yeh ek popular action hai
+      - name: Deploy to Elastic Beanstalk # Deployment Action
+        uses: einaregilsson/beanstalk-deploy@v21 # Aapne v21 use kiya hai
         with:
-          aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }} # Secret key use kiya
-          aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }} # Secret key use kiya
-          application_name: techsiddhu # Yahan change karein
-          environment_name: Techsiddhu-env # Yahan change karein
-          version_label: ${{ github.sha }} # Har deployment ka unique version
-          region: 'us-east-1' # Apni AWS region daalein (Jaise: us-east-1, ap-south-1)
-          deployment_package: target/application.jar
-+
+          # --- Secrets (Yeh values aapne GitHub Secrets mein daali hongi) ---
+          aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }} 
+          aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          
+          # --- Elastic Beanstalk Configuration (Yeh bhi secrets ya direct values honi chahiye) ---
+          application_name: Techsiddhu-env
+          environment_name: techsiddhu
+          
+          # --- Deployment Details ---
+          region: 'us-east-1' # Ya toh 'us-east-1' ya phir aapki region (jaise 'ap-south-1')
+          version_label: ${{ github.sha }} # Har commit ke liye unique version
+          deployment_package: target/application.jar # **Bahut Important:** Apni final JAR/WAR file ka naam yahan daalein!
